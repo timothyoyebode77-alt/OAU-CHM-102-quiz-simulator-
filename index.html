@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CHM 102 &middot; Interactive Quiz Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Ambient bond-line lattice backdrop -->
+<svg class="lattice" aria-hidden="true" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <g id="latticeGroup"></g>
+</svg>
+
+<!-- ============ WELCOME SCREEN ============ -->
+<section id="screen-welcome" class="screen active">
+  <div class="welcome-card">
+    <p class="eyebrow">CHM 102 &middot; Organic Chemistry II</p>
+    <h1 class="title">The Titration<br><span class="accent">Bench</span></h1>
+    <p class="subtitle">Thirty questions across alkanes, alkenes, alkynes, alcohols &amp; ethers, carbonyl compounds, carbohydrates and proteins. One sitting, one flask, forty minutes on the clock.</p>
+
+    <div class="rules-strip">
+      <div class="rule-item">
+        <span class="rule-num">30</span>
+        <span class="rule-label">questions</span>
+      </div>
+      <div class="rule-item">
+        <span class="rule-num">40:00</span>
+        <span class="rule-label">on the clock</span>
+      </div>
+      <div class="rule-item">
+        <span class="rule-num">A&ndash;D</span>
+        <span class="rule-label">one correct answer</span>
+      </div>
+      <div class="rule-item">
+        <span class="rule-num">&plusmn;0</span>
+        <span class="rule-label">no negative marking</span>
+      </div>
+    </div>
+
+    <label class="name-label" for="studentName">Name (optional, for your results)</label>
+    <input type="text" id="studentName" class="name-input" placeholder="e.g. Adaeze Okonkwo" autocomplete="off">
+
+    <div class="options-row">
+      <label class="toggle">
+        <input type="checkbox" id="randomizeQuestions">
+        <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        <span class="toggle-text">Shuffle question order</span>
+      </label>
+      <label class="toggle">
+        <input type="checkbox" id="randomizeOptions">
+        <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        <span class="toggle-text">Shuffle answer options</span>
+      </label>
+    </div>
+
+    <button id="startQuizBtn" class="btn-primary">
+      <span>Start Quiz</span>
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 3L14 9L4 15V3Z" fill="currentColor"/></svg>
+    </button>
+    <p class="micro-note">The timer starts the moment you click Start &mdash; make sure you're ready.</p>
+  </div>
+</section>
+
+<!-- ============ QUIZ SCREEN ============ -->
+<section id="screen-quiz" class="screen">
+  <header class="quiz-header">
+    <div class="quiz-header-left">
+      <span class="quiz-brand">CHM 102</span>
+      <span class="quiz-student" id="headerStudentName"></span>
+    </div>
+    <div class="timer-wrap" id="timerWrap">
+      <svg class="timer-ring" width="56" height="56" viewBox="0 0 56 56">
+        <circle class="timer-ring-bg" cx="28" cy="28" r="24"></circle>
+        <circle class="timer-ring-fg" id="timerRing" cx="28" cy="28" r="24"></circle>
+      </svg>
+      <span class="timer-text" id="timerText">40:00</span>
+    </div>
+    <button id="submitBtn" class="btn-submit">Submit Quiz</button>
+  </header>
+
+  <div class="progress-bar-track">
+    <div class="progress-bar-fill" id="progressBarFill"></div>
+  </div>
+
+  <div class="quiz-body">
+    <aside class="palette-panel">
+      <p class="palette-heading">Question Map</p>
+      <div class="palette-grid" id="paletteGrid"></div>
+      <div class="palette-legend">
+        <span><i class="dot dot-current"></i>Current</span>
+        <span><i class="dot dot-answered"></i>Answered</span>
+        <span><i class="dot dot-unanswered"></i>Unanswered</span>
+      </div>
+      <button id="reviewBtn" class="btn-ghost">Review Answers</button>
+    </aside>
+
+    <main class="question-panel">
+      <div class="question-meta">
+        <span class="q-topic" id="qTopic">Alkanes</span>
+        <span class="q-counter" id="qCounter">Question 1 of 30</span>
+      </div>
+      <h2 class="q-text" id="qText"></h2>
+      <div class="options-list" id="optionsList"></div>
+
+      <div class="nav-row">
+        <button id="prevBtn" class="btn-nav">&larr; Previous</button>
+        <button id="nextBtn" class="btn-nav btn-nav-primary">Next &rarr;</button>
+      </div>
+    </main>
+  </div>
+</section>
+
+<!-- ============ REVIEW SCREEN (pre-submit) ============ -->
+<section id="screen-review" class="screen">
+  <header class="review-header">
+    <h2>Review your answers</h2>
+    <p>Jump to any question to change your answer, or submit when you're ready.</p>
+  </header>
+  <div class="review-grid" id="reviewGrid"></div>
+  <div class="review-actions">
+    <button id="backToQuizBtn" class="btn-ghost">&larr; Back to Quiz</button>
+    <button id="finalSubmitBtn" class="btn-primary">Submit Final Answers</button>
+  </div>
+</section>
+
+<!-- ============ RESULTS SCREEN ============ -->
+<section id="screen-results" class="screen">
+  <div class="results-hero">
+    <p class="eyebrow">Lab Report</p>
+    <h1 class="title results-title" id="resultsGreeting">Results</h1>
+
+    <div class="score-dial-wrap">
+      <svg class="score-dial" width="180" height="180" viewBox="0 0 180 180">
+        <circle class="dial-bg" cx="90" cy="90" r="78"></circle>
+        <circle class="dial-fg" id="dialFg" cx="90" cy="90" r="78"></circle>
+      </svg>
+      <div class="score-dial-center">
+        <span class="score-frac" id="scoreFrac">0/30</span>
+        <span class="score-pct" id="scorePct">0%</span>
+      </div>
+    </div>
+
+    <p class="pass-fail" id="passFail"></p>
+
+    <div class="results-stats">
+      <div class="stat-block">
+        <span class="stat-num stat-correct" id="statCorrect">0</span>
+        <span class="stat-label">Correct</span>
+      </div>
+      <div class="stat-block">
+        <span class="stat-num stat-incorrect" id="statIncorrect">0</span>
+        <span class="stat-label">Incorrect</span>
+      </div>
+      <div class="stat-block">
+        <span class="stat-num" id="statTimeUsed">0:00</span>
+        <span class="stat-label">Time used</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="breakdown-section">
+    <h3>Answer Breakdown</h3>
+    <div class="breakdown-list" id="breakdownList"></div>
+  </div>
+
+  <div class="results-actions">
+    <button id="retakeBtn" class="btn-primary">Retake Quiz</button>
+  </div>
+</section>
+
+<!-- Confirm-submit dialog -->
+<div id="confirmOverlay" class="overlay">
+  <div class="confirm-card">
+    <h3 id="confirmTitle">Submit your answers?</h3>
+    <p id="confirmBody">You still have unanswered questions. Once submitted, you can't change your answers.</p>
+    <div class="confirm-actions">
+      <button id="confirmCancel" class="btn-ghost">Keep Working</button>
+      <button id="confirmOk" class="btn-primary">Submit</button>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
